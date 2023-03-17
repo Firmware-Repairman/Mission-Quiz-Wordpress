@@ -55,7 +55,7 @@
 
 .button-container {
     position: relative;
-    display: flex;
+    display: block;
     padding: 10px;
     padding-left: 20px;
 }
