@@ -92,9 +92,9 @@ function handleUpdateAnswerCallback(response) {
             for (var i = 0; i < len; i++) {
                 percent_labels[i].style.display = "inherit";
             }
+            $('#next').removeClass('hide');
         }
     }
-    $('#next').removeClass('hide');
 }
 
 
@@ -153,7 +153,7 @@ function handleUpdateNumCorrectCallback(response) {
     }
 
     const percentileContainer = document.getElementById('percentile');
-    percentileContainer.innerHTML = `You scored in the ${level} ${percentile} percent of everyone who has taken the quiz.`;
+    percentileContainer.innerHTML = `<p>You scored in the ${level} ${percentile} percent of everyone who has taken the quiz.</p>`;
 }
 
 // build quiz function

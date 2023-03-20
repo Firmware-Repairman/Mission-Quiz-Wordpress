@@ -332,7 +332,6 @@ if (!class_exists("MissionQuiz"))
     numCorrect = 0;
     // on answer click
     $(".button-answers").click(function() {
-        $('#next').removeClass('hide');
         var userAnswer = $(this).attr('id');
         var correctAnswer = myQuestions[questionIterate].correctAnswer;
         var userAnswerButton = document.getElementById(userAnswer);
