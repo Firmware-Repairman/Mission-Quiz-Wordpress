@@ -28,34 +28,38 @@
 
 if (!class_exists("MissionQuiz"))
 {
-    global $mission_quiz_db_version;
-    $mission_quiz_db_version = "1.0";
-
     class MissionQuiz
     {
+        static $mission_quiz_db_version_1_0 = "1.0";
+        static $mission_quiz_db_version_1_1 = "1.1";
+    
         function __construct()
         {
             add_action( 'init', array( &$this, 'init_plugin' ));
             add_action( 'wp_ajax_update_answers', array( &$this, 'ajax_update_answers' ));
             add_action( 'wp_ajax_nopriv_update_answers', array( &$this, 'ajax_update_answers' ));
+            add_action( 'wp_ajax_update_num_correct', array( &$this, 'ajax_update_num_correct' ));
+            add_action( 'wp_ajax_nopriv_update_num_correct', array( &$this, 'ajax_update_num_correct' ));
             add_action( 'wp_head', array( &$this, 'add_ajax_url' ));
         }
 
         // Called on activation or update
         public function setup_plugin() {
             global $wpdb;
-            global $mission_quiz_db_version;
             require_once( ABSPATH . 'wp-admin/upgrade-functions.php' );
 
             // if the option is already set then setup not required
             if (get_option("mission_quiz_db_version")) {
-                if (get_option("mission_quiz_db_version") != $mission_quiz_db_version) {
-                    die ("downgrade not supported!!!"); // there is no prev version using this var
+                $old_version = get_option("mission_quiz_db_version");
+                if ($old_version == self::$mission_quiz_db_version_1_0) {
+                    $this->upgrade_db_1_0_to_1_1();
+                } elseif ($old_version != self::$mission_quiz_db_version_1_1) {
+                    die ("Unknown db version: ".$old_version); // there is no prev version using this var
                 }
                 return;
             }
 
-            // create the database, will fail if it already exists
+            // create the database version 1.0, will fail if it already exists
             if ( !empty($wpdb->charset) )
                 $charset_collate = "DEFAULT CHARACTER SET ".$wpdb->charset;
             $sql[] = "CREATE TABLE ".$wpdb->base_prefix."mission_quiz_answer_totals (
@@ -70,8 +74,27 @@ if (!class_exists("MissionQuiz"))
 
             $result = dbDelta ($sql);
 
+            // make the changes to turn it into 1.1
+            $this->upgrade_db_1_0_to_1_1();
+        }
+
+        private function upgrade_db_1_0_to_1_1() {
+            global $wpdb;
+            if ( !empty($wpdb->charset) )
+                $charset_collate = "DEFAULT CHARACTER SET ".$wpdb->charset;
+            $sql[] = "CREATE TABLE ".$wpdb->base_prefix."mission_quiz_num_correct_answers (
+                    id bigint(20) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    quiz_id varchar(32) NOT NULL,
+                    num_correct bigint(20) NOT NULL,
+                    num_users bigint(20) NOT NULL DEFAULT 1,
+                    KEY num_correct_query (quiz_id, num_correct),
+                    CONSTRAINT UNIQUE (quiz_id, num_correct)
+                ) ".$charset_collate.";";
+
+            $result = dbDelta ($sql);
+
             // set the option to skip setup next time
-            update_option ("mission_quiz_db_version", $mission_quiz_db_version);
+            update_option ("mission_quiz_db_version", self::$mission_quiz_db_version_1_1);
         }
 
         public function init_plugin() {
@@ -84,7 +107,7 @@ if (!class_exists("MissionQuiz"))
                 wp_register_script( 'mission-quiz',
                         plugins_url( '/js/mission-quiz.js', __FILE__),
                         array( 'jquery' ),
-                        '1.0'
+                        '1.1'
                     );
                  wp_enqueue_script('mission-quiz');
             }
@@ -143,13 +166,61 @@ if (!class_exists("MissionQuiz"))
                     ORDER BY answer ASC;",
                 $quiz_id, $question_no));
 
-            //Return success
+                //Return success
             $result["status"] = 1;
             $result["message"] = "All good";
             $result["percent_answered"] = $answer_totals;
 
             die(json_encode($result));
         }
+
+
+        //********************************************************************
+        // Ajax handler, called when javascript calls jQuery.post(MissionQuiz.ajaxurl, data, ...)
+        // with data.action='num_correct'
+        public function ajax_update_num_correct() {
+            global $wpdb;  // database handle
+
+            // return object. Will be passed to the jQuery callback as json
+            $result = array( 'status' => '-1',
+                             'message' => '',
+                             'num_users' => [] );
+
+            //Validate expected params
+            if ( $_POST['quiz_id'] == null ) {
+                $result["message"] = "ajax_update_answers: quiz_id was null";
+                die(json_encode($result));
+            }
+            if ( $_POST['num_correct'] == null ) {
+                $result["message"] = "ajax_update_answers: num_correct was null";
+                die(json_encode($result));
+            }
+
+            $quiz_id = $_POST['quiz_id'];
+            $num_correct = $_POST['num_correct'];
+
+            $wpdb->query($wpdb->prepare("
+                INSERT INTO ".$wpdb->base_prefix."mission_quiz_num_correct_answers
+                    (quiz_id, num_correct)
+                    VALUES (%s, %d)
+                    ON DUPLICATE KEY UPDATE num_users = (num_users + 1);",
+                    $quiz_id, $num_correct));
+
+            // Retrieve all of the answer_totals for this quiz/question/answer combination
+            $correct_by_users = $wpdb->get_results($wpdb->prepare("
+                SELECT num_correct, num_users FROM ".$wpdb->base_prefix."mission_quiz_num_correct_answers
+                    WHERE quiz_id=%s
+                    ORDER BY num_correct ASC;",
+                $quiz_id));
+
+            // Return success
+            $result["status"] = 1;
+            $result["message"] = "All good";
+            $result["num_users"] = $correct_by_users;
+
+            die(json_encode($result));
+        }
+
     } //class:MissionQuiz
 
     //Create instance of plugin
@@ -172,6 +243,8 @@ if (!class_exists("MissionQuiz"))
             <div class="button-container">
                 <button id="next" class="button1 hide" onclick="plusSlides(1)">Next</button>
                 <div id="results"></div>
+                <div id="percentile"></div>
+                <div id="startagain"></div>
             </div>
         </div>
     </div>
@@ -259,7 +332,6 @@ if (!class_exists("MissionQuiz"))
     numCorrect = 0;
     // on answer click
     $(".button-answers").click(function() {
-        $('#next').removeClass('hide');
         var userAnswer = $(this).attr('id');
         var correctAnswer = myQuestions[questionIterate].correctAnswer;
         var userAnswerButton = document.getElementById(userAnswer);
