@@ -30,10 +30,10 @@ if (!class_exists("MissionQuiz"))
 {
     class MissionQuiz
     {
-        
+
         static $mission_quiz_db_version_1_0 = "1.0";
         static $mission_quiz_db_version_1_1 = "1.1";
-        
+
         function __construct()
         {
             add_action( 'init', array( &$this, 'init_plugin' ));
@@ -74,7 +74,7 @@ if (!class_exists("MissionQuiz"))
                 ) ".$charset_collate.";";
 
             $result = dbDelta ($sql);
-            
+
             // make the changes to turn it into 1.1
             $this->upgrade_db_1_0_to_1_1();
         }
@@ -174,6 +174,7 @@ if (!class_exists("MissionQuiz"))
 
             die(json_encode($result));
         }
+
         //********************************************************************
         // Ajax handler, called when javascript calls jQuery.post(MissionQuiz.ajaxurl, data, ...)
         // with data.action='num_correct'
@@ -219,7 +220,7 @@ if (!class_exists("MissionQuiz"))
 
             die(json_encode($result));
         }
-        
+
     } //class:MissionQuiz
 
     //Create instance of plugin
