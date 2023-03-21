@@ -144,16 +144,12 @@ function handleUpdateNumCorrectCallback(response) {
         }
     }
 
-    let level = 'top';
     let totalUsers = numUsersLess + numUsersEqual + numUsersMore;
-    let percentile = Math.round((numUsersEqual + numUsersMore) * 100 / totalUsers);
-    if (percentile >= 50) {
-        percentile = Math.round((numUsersEqual + numUsersLess) * 100 / totalUsers);
-        level = 'bottom';
-    }
+    let more_percentage = Math.round(100 * numUsersMore / totalUsers);
+    let less_percentage = Math.round(100 * numUsersLess / totalUsers);
 
     const percentileContainer = document.getElementById('percentile');
-    percentileContainer.innerHTML = `<p>You scored in the ${level} ${percentile} percent of everyone who has taken the quiz.</p>`;
+    percentileContainer.innerHTML = `<p>Of everyone who has taken the quiz ${more_percentage}% had more correct answers,<br/>and ${less_percentage}% had fewer correct answers than you.</p>`;
 }
 
 // build quiz function
