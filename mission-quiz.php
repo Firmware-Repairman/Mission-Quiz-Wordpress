@@ -242,8 +242,9 @@ if (!class_exists("MissionQuiz"))
             <div id="explanation"></div>
             <div class="button-container">
                 <button id="next" class="button1 hide" onclick="plusSlides(1)">Next</button>
-                <div id="results"></div>
-                <div id="percentile"></div>
+                <div id="results">
+                    <p id="percentile"></p>
+                </div>
                 <div id="startagain"></div>
             </div>
         </div>
