@@ -30,9 +30,10 @@ if (!class_exists("MissionQuiz"))
 {
     class MissionQuiz
     {
+        
         static $mission_quiz_db_version_1_0 = "1.0";
         static $mission_quiz_db_version_1_1 = "1.1";
-    
+        
         function __construct()
         {
             add_action( 'init', array( &$this, 'init_plugin' ));
@@ -54,7 +55,7 @@ if (!class_exists("MissionQuiz"))
                 if ($old_version == self::$mission_quiz_db_version_1_0) {
                     $this->upgrade_db_1_0_to_1_1();
                 } elseif ($old_version != self::$mission_quiz_db_version_1_1) {
-                    die ("Unknown db version: ".$old_version); // there is no prev version using this var
+                    die ("Unknown db version: ".$old_version); // there is no prev 
                 }
                 return;
             }
@@ -73,7 +74,7 @@ if (!class_exists("MissionQuiz"))
                 ) ".$charset_collate.";";
 
             $result = dbDelta ($sql);
-
+            
             // make the changes to turn it into 1.1
             $this->upgrade_db_1_0_to_1_1();
         }
@@ -166,15 +167,13 @@ if (!class_exists("MissionQuiz"))
                     ORDER BY answer ASC;",
                 $quiz_id, $question_no));
 
-                //Return success
+            //Return success
             $result["status"] = 1;
             $result["message"] = "All good";
             $result["percent_answered"] = $answer_totals;
 
             die(json_encode($result));
         }
-
-
         //********************************************************************
         // Ajax handler, called when javascript calls jQuery.post(MissionQuiz.ajaxurl, data, ...)
         // with data.action='num_correct'
@@ -220,7 +219,7 @@ if (!class_exists("MissionQuiz"))
 
             die(json_encode($result));
         }
-
+        
     } //class:MissionQuiz
 
     //Create instance of plugin
@@ -242,8 +241,9 @@ if (!class_exists("MissionQuiz"))
             <div id="explanation"></div>
             <div class="button-container">
                 <button id="next" class="button1 hide" onclick="plusSlides(1)">Next</button>
-                <div id="results">
-                    <p id="percentile"></p>
+                <div id="results-overall">
+                    <div id="results"></div>
+                    <div id="percentile"></div>
                 </div>
                 <div id="startagain"></div>
             </div>
