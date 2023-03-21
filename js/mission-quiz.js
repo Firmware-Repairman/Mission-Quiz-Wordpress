@@ -95,8 +95,8 @@ function handleUpdateAnswerCallback(response) {
             $('#next').removeClass('hide');
         }
     }
-}
 
+}
 
 // Called to update the database and return current totals
 function sendNumCorrect(quiz_id, num_correct) {
@@ -149,7 +149,7 @@ function handleUpdateNumCorrectCallback(response) {
     let less_percentage = Math.round(100 * numUsersLess / totalUsers);
 
     const percentileContainer = document.getElementById('percentile');
-    percentileContainer.innerHTML = `<p>Of everyone who has taken the quiz ${more_percentage}% had more correct answers,<br/>and ${less_percentage}% had fewer correct answers than you.</p>`;
+    percentileContainer.innerHTML = `<p>Of everyone who has taken the quiz, ${more_percentage} percent had more correct answers, and ${less_percentage} percent had fewer correct answers.</p>`;
 }
 
 // build quiz function
@@ -187,9 +187,7 @@ function buildQuiz() {
 function showResults(){
     // calculate percentile in background
     sendNumCorrect(post_id, numCorrect);
-
     // calculate correctness
-
     let comment = ``;
     let percentageCorrect = numCorrect / Object.keys(myQuestions).length
     if (percentageCorrect == 1) {
@@ -204,14 +202,14 @@ function showResults(){
     else if (percentageCorrect == 0) {
         comment = `Oh dear! Perhaps it's time to have another browse through our articles.`;
     }
-
-    const resultsContainer = document.getElementById('results');
+    
+        const resultsContainer = document.getElementById('results');
     resultsContainer.innerHTML = `<h3>You scored <strong>${numCorrect} out of ${myQuestions.length}</strong>.</h3>
         <p>${comment}</p>`;
 
     const startAgain = document.getElementById('startagain');
     startAgain.innerHTML = `<button class="button1" onClick="window.location.reload();">Start again?</button>`;
-
+    
     quiz.innerHTML = ``;
 };
 ////
@@ -234,7 +232,7 @@ function plusSlides(n) {
     }
     // jump to the top of the next question
     document.getElementById("jump-to-next").scrollIntoView({behavior: 'auto'});
-
+    
     active_answers = document.getElementsByClassName('active-slide')[0].getElementsByClassName('button-answers');
     active_labels = document.getElementsByClassName('active-slide')[0].getElementsByClassName('answer-label');
     for (let i = 0; i < active_answers.length; i++) {
@@ -245,7 +243,7 @@ function plusSlides(n) {
     }
 }
 async function showSlides(n) {
-
+    
     let i;
     let slides = document.getElementsByClassName("slide");
     // remove 'active slide' from previous slide
@@ -263,7 +261,7 @@ async function showSlides(n) {
         }
         questionIterate++;
     }
-
+    
     all_answers = document.querySelectorAll('.button-answers');
     all_labels = document.querySelectorAll('.answer-label');
     for (let i = 0; i < all_answers.length; i++) {
@@ -272,7 +270,7 @@ async function showSlides(n) {
     for (let i = 0; i < all_labels.length; i++) {
         all_labels[i].classList.add("disabled")
     }
-
+    
     active_answers = document.getElementsByClassName('active-slide')[0].getElementsByClassName('button-answers');
     active_labels = document.getElementsByClassName('active-slide')[0].getElementsByClassName('answer-label');
     for (let i = 0; i < active_answers.length; i++) {
@@ -283,7 +281,7 @@ async function showSlides(n) {
         console.log(active_labels[i])
         active_labels[i].classList.remove("disabled")
     }
-
+    
 }
 
 ////
@@ -309,7 +307,7 @@ function validateAnswers(userAnswer, correctAnswer, userAnswerButton, correctAns
     for (let i = 0; i < all_labels.length; i++) {
         all_labels[i].classList.add("disabled")
     }
-
+    
     // disable all the slides
     for (let i = 0; i < slides.length; i++) {
         slides[i].classList.add("disabled");
@@ -340,7 +338,7 @@ function validateAnswers(userAnswer, correctAnswer, userAnswerButton, correctAns
             percent_bars[i].style.backgroundColor = "#8e8e8e";
         }
     }
-
+    
     // Update the database with the latest answer
     // In the callback handleUpdateAnswerCallback() set the percent width and text
     sendAnswers(post_id, questionIterate, user_answer_no);
