@@ -3,7 +3,7 @@
  * Plugin Name:     MissionQuiz
  * Plugin URI:      https://github.com/Firmware-Repairman/Mission-Quiz-Wordpress
  * Description:     Quiz template that tracks totals of user answers. Used in missionlocal.org
- * Version:         1.0
+ * Version:         1.1
  * Author:          Craig Mautner
  * License:         GPLv3
  * License URI:     https://www.gnu.org/licenses/gpl-3.0.html
@@ -55,7 +55,7 @@ if (!class_exists("MissionQuiz"))
                 if ($old_version == self::$mission_quiz_db_version_1_0) {
                     $this->upgrade_db_1_0_to_1_1();
                 } elseif ($old_version != self::$mission_quiz_db_version_1_1) {
-                    die ("Unknown db version: ".$old_version); // there is no prev 
+                    die ("Unknown db version: ".$old_version); // there is no prev
                 }
                 return;
             }
@@ -108,7 +108,7 @@ if (!class_exists("MissionQuiz"))
                 wp_register_script( 'mission-quiz',
                         plugins_url( '/js/mission-quiz.js', __FILE__),
                         array( 'jquery' ),
-                        '1.1'
+                        '1.2'
                     );
                  wp_enqueue_script('mission-quiz');
             }
