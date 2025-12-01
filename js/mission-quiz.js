@@ -191,16 +191,16 @@ function showResults(){
     let comment = ``;
     let percentageCorrect = numCorrect / Object.keys(myQuestions).length
     if (percentageCorrect == 1) {
-        comment = `Clearly you should be setting the questions - your understanding of the Mission is unsurpassed. Congratulations!`;
+        comment = `Clearly you should be setting the questions. Congratulations!`;
     }
     else if (percentageCorrect > 0.5) {
-        comment = `Nicely done! Your knowledge of the Mission is impressive. But there's still room to improve!`;
+        comment = `Nicely done! Your knowledge is impressive. But there's still room to improve!`;
     }
     else if (percentageCorrect > 0) {
-        comment = `Not bad! You still have a way to go until you can claim total understanding of the Mission, but you are off to a solid start.`;
+        comment = `Not bad! You are off to a solid start.`;
     }
     else if (percentageCorrect == 0) {
-        comment = `Oh dear! Perhaps it's time to have another browse through our articles.`;
+        comment = `Oh dear! Better luck next time.`;
     }
     
         const resultsContainer = document.getElementById('results');
